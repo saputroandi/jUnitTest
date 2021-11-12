@@ -13,15 +13,15 @@ public class PersonService {
         this.personRepository = personRepository;
     }
 
-    public Person get(String id){
-        var person = personRepository.selectById(id);
+    public Person get(String id) {
+        Person person = personRepository.selectById(id);
 
         if (person != null) return person;
 
         throw new IllegalArgumentException("Person not found");
     }
 
-    public Person register(String name){
+    public Person register(String name) {
         Person person = new Person(UUID.randomUUID().toString(), name);
 
         personRepository.insert(person);

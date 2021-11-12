@@ -10,7 +10,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Extensions(
         @ExtendWith(MockitoExtension.class)
@@ -28,7 +31,7 @@ public class MockTest {
     }
 
     @Test
-    public void testMocking(){
+    public void testMocking() {
 
         // membuat object dengan mocking
         List<String> list = Mockito.mock(List.class);
@@ -41,14 +44,14 @@ public class MockTest {
     }
 
     @Test
-    public void testGetPersonNotFound(){
+    public void testGetPersonNotFound() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             personService.get("not found");
         });
     }
 
     @Test
-    public void testGetPersonSuccess(){
+    public void testGetPersonSuccess() {
         Mockito.when(personRepository.selectById("andi"))
                 .thenReturn(new Person("andiId", "andiName"));
 
@@ -60,8 +63,8 @@ public class MockTest {
     }
 
     @Test
-    public void testRegisterSuccess(){
-        var person = personService.register("andi");
+    public void testRegisterSuccess() {
+        Person person = personService.register("andi");
 
         Assertions.assertNotNull(person);
         Assertions.assertEquals("andi", person.getName());
@@ -70,6 +73,53 @@ public class MockTest {
         // verifikasi jika method insert dalam person repository sudah di panggil/digunakan sekali
         Mockito.verify(personRepository, Mockito.times(1))
                 .insert(new Person(person.getId(), person.getName()));
+    }
+
+    @Test
+    public void testLazyStream() {
+
+        Stream<String> names = Stream.of("andi", "saputro");
+
+        names.map(name -> {
+            System.out.println("Stream jalan " + name);
+            return name.toUpperCase();
+        });
+    }
+
+    @Test
+    public void testTerminalStream() {
+
+        Stream<String> names = Stream.of("andi", "saputro");
+
+        names.map(name -> {
+            System.out.println("Stream jalan " + name);
+            return name.toUpperCase();
+        }).forEach(name -> {
+            System.out.println("print nama: " + name);
+        });
+    }
+
+    @Test
+    public void testSortedComparator() {
+        Stream<String> data = Stream.of("rahma", "andi", "wulan", "sarah");
+
+        data.sorted(Comparator.comparing(value -> value))
+                .forEach(System.out::println);
+    }
+
+    @Test
+    public void testReduce() {
+        Stream<String> data = Stream.of("joko", "andi", "oki", "andi", "joko", "oki", "oki", "sarah", "andi", "oki", "sarah", "oki", "sarah");
+
+//        melihat data tanpa merubah tipe datanya dengan lazy operation peek
+//        data.peek(System.out::println);
+
+        // grouping by name
+        Map<String, Long> count = data.collect(Collectors.groupingBy(key -> key, Collectors.counting()));
+
+        System.out.println(count);
+
+
     }
 
 }
